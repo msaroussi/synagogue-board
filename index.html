@@ -444,7 +444,7 @@ async function fetchParashaAndShabbat() {
     const data = await fetchJSON(
       `https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&mod=on&nx=on` +
       `&year=now&month=now&ss=on&mf=on&c=on&geo=geoname&geonameid=${CONFIG.geonameid}` +
-      `&M=on&s=on&o=on&start=${start}&end=${fmtDate(endD)}&lg=he`
+      `&M=on&s=on&o=on&b=20&start=${start}&end=${fmtDate(endD)}&lg=he`
     );
 
     const items = data.items || [];
