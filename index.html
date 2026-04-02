@@ -436,12 +436,18 @@ async function fetchParashaAndShabbat() {
 
     const items = data.items || [];
     const parasha   = items.find(i => i.category === 'parashat');
+    const holiday   = items.find(i => i.category === 'holiday' && i.subcat === 'major');
     const candles   = items.find(i => i.category === 'candles');
     const havdalah  = items.find(i => i.category === 'havdalah');
 
-    // Parasha
-    document.getElementById('parashaName').textContent =
-      parasha ? (parasha.hebrew || parasha.title) : '---';
+    // Parasha — if no regular parasha (e.g. during Pesach/Sukkot), show holiday name
+    if (parasha) {
+      document.getElementById('parashaName').textContent = parasha.hebrew || parasha.title;
+    } else if (holiday) {
+      document.getElementById('parashaName').textContent = holiday.hebrew || holiday.title;
+    } else {
+      document.getElementById('parashaName').textContent = '---';
+    }
 
     // Left column — rebuild completely each time (no duplicates)
     let leftHTML = '';
