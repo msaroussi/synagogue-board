@@ -275,6 +275,7 @@
       <div class="label">פרשת השבוע</div>
       <div class="value" id="parashaName">טוען...</div>
     </div>
+    <div class="info-line" id="omerLine" style="display:none;">ספירת העומר: <span class="info-value" id="omerCount"></span></div>
     <div class="info-line" id="seasonLine">משיב הרוח</div>
     <div class="info-line">דף היומי: <span class="info-value" id="dafYomi">טוען...</span></div>
   </div>
@@ -307,6 +308,18 @@
 // ══════════════════════════════════════════
 //  CONFIG — עדכן לפי המיקום שלך
 //  רשימת ערים: https://www.hebcal.com/home/cities
+
+// לבת ים:
+// geonameid: 295548,
+// cityName: 'בת ים',
+
+// לבנימינה:
+// geonameid: 295410,
+// cityName: 'בנימינה',
+
+// geonameid: 281184,  
+// cityName: 'ירושלים',
+
 // ══════════════════════════════════════════
 const CONFIG = {
   geonameid: 281184,   // ירושלים
@@ -431,7 +444,7 @@ async function fetchParashaAndShabbat() {
     const data = await fetchJSON(
       `https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&mod=on&nx=on` +
       `&year=now&month=now&ss=on&mf=on&c=on&geo=geoname&geonameid=${CONFIG.geonameid}` +
-      `&M=on&s=on&start=${start}&end=${fmtDate(endD)}&lg=he`
+      `&M=on&s=on&o=on&start=${start}&end=${fmtDate(endD)}&lg=he`
     );
 
     const items = data.items || [];
@@ -439,6 +452,9 @@ async function fetchParashaAndShabbat() {
     const holiday   = items.find(i => i.category === 'holiday' && i.subcat === 'major');
     const candles   = items.find(i => i.category === 'candles');
     const havdalah  = items.find(i => i.category === 'havdalah');
+    // Omer — find today's omer count
+    const todayStr  = fmtDate(new Date());
+    const omer      = items.find(i => i.category === 'omer' && i.date === todayStr);
 
     // Parasha — if no regular parasha (e.g. during Pesach/Sukkot), show holiday name
     if (parasha) {
@@ -447,6 +463,14 @@ async function fetchParashaAndShabbat() {
       document.getElementById('parashaName').textContent = holiday.hebrew || holiday.title;
     } else {
       document.getElementById('parashaName').textContent = '---';
+    }
+
+    // Omer count
+    if (omer) {
+      document.getElementById('omerCount').textContent = omer.hebrew || omer.title;
+      document.getElementById('omerLine').style.display = '';
+    } else {
+      document.getElementById('omerLine').style.display = 'none';
     }
 
     // Left column — rebuild completely each time (no duplicates)
