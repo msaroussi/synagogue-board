@@ -1,0 +1,489 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>לוח בית כנסת</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Heebo:wght@300;400;500;700;900&family=Secular+One&display=swap');
+
+  :root {
+    --bg: #0c0c10;
+    --led-red: #ff3333;
+    --led-blue: #7799ff;
+    --led-white: #ccd8ee;
+    --border-color: #1a1a22;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: 'Heebo', sans-serif;
+    background: #050508;
+    color: var(--led-white);
+    min-height: 100vh;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+  }
+
+  .led-board {
+    background: var(--bg);
+    border: 3px solid #222230;
+    border-radius: 8px;
+    width: 96vw;
+    max-width: 1800px;
+    aspect-ratio: 4 / 1;
+    position: relative;
+    overflow: hidden;
+    box-shadow:
+      0 0 40px rgba(0,0,0,0.8),
+      inset 0 0 80px rgba(0,0,0,0.5),
+      0 2px 0 #333;
+    display: grid;
+    grid-template-rows: auto 1fr auto;
+    grid-template-columns: 1fr auto 1fr;
+    padding: 1.2vw 2vw;
+    gap: 0.3vw;
+  }
+
+  /* LED dot-matrix texture */
+  .led-board::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image: radial-gradient(circle, rgba(255,255,255,0.03) 1px, transparent 1px);
+    background-size: 4px 4px;
+    pointer-events: none;
+    z-index: 10;
+  }
+
+  .led-board::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at center, rgba(100,130,200,0.02) 0%, transparent 70%);
+    pointer-events: none;
+    z-index: 9;
+  }
+
+  /* ── Top row ── */
+  .top-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 0.5vw;
+    border-bottom: 1px solid var(--border-color);
+    z-index: 5;
+  }
+
+  .hebrew-date-top {
+    font-family: 'Secular One', 'Heebo', sans-serif;
+    font-size: clamp(0.9rem, 1.8vw, 1.6rem);
+    color: var(--led-red);
+    text-shadow: 0 0 8px rgba(255,50,50,0.4);
+  }
+
+  .dedication {
+    font-size: clamp(0.7rem, 1.3vw, 1.2rem);
+    color: var(--led-white);
+    text-shadow: 0 0 6px rgba(200,210,240,0.3);
+    text-align: center;
+    flex: 1;
+    padding: 0 2vw;
+  }
+
+  .gregorian-date-top {
+    font-size: clamp(0.8rem, 1.5vw, 1.3rem);
+    color: var(--led-red);
+    text-shadow: 0 0 8px rgba(255,50,50,0.4);
+    direction: ltr;
+    font-weight: 500;
+  }
+
+  /* ── Middle: right column (RTL = visually right) ── */
+  .middle-right {
+    grid-column: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-start;
+    gap: 0.6vw;
+    padding-right: 1vw;
+    z-index: 5;
+  }
+
+  .parasha-section .label {
+    font-size: clamp(0.65rem, 1.1vw, 1rem);
+    color: var(--led-red);
+    text-shadow: 0 0 6px rgba(255,50,50,0.3);
+    font-weight: 500;
+  }
+
+  .parasha-section .value {
+    font-family: 'Secular One', 'Heebo', sans-serif;
+    font-size: clamp(1rem, 2vw, 1.8rem);
+    color: var(--led-white);
+    text-shadow: 0 0 10px rgba(200,210,240,0.4);
+    line-height: 1.2;
+  }
+
+  .info-line {
+    font-size: clamp(0.6rem, 1vw, 0.95rem);
+    color: var(--led-red);
+    text-shadow: 0 0 5px rgba(255,50,50,0.3);
+  }
+
+  .info-line .info-value {
+    color: var(--led-white);
+    text-shadow: 0 0 6px rgba(200,210,240,0.3);
+    font-weight: 500;
+  }
+
+  /* ── Center clock ── */
+  .clock-center {
+    grid-column: 2;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    z-index: 5;
+    padding: 0 2vw;
+  }
+
+  .day-name {
+    font-family: 'Secular One', 'Heebo', sans-serif;
+    font-size: clamp(1rem, 2.2vw, 2rem);
+    color: var(--led-blue);
+    text-shadow: 0 0 12px rgba(100,140,255,0.4);
+    margin-bottom: 0.2vw;
+  }
+
+  .clock-display {
+    font-family: 'Heebo', sans-serif;
+    font-weight: 900;
+    font-size: clamp(3rem, 8vw, 8rem);
+    color: var(--led-blue);
+    text-shadow: 0 0 20px rgba(100,140,255,0.5), 0 0 40px rgba(100,140,255,0.2);
+    line-height: 1;
+    direction: ltr;
+    letter-spacing: -2px;
+    display: flex;
+    align-items: baseline;
+  }
+
+  .clock-display .seconds {
+    font-size: clamp(1.5rem, 3.5vw, 3.5rem);
+    font-weight: 700;
+    opacity: 0.7;
+    margin-right: 2px;
+  }
+
+  .clock-display .colon {
+    margin: 0 0.1vw;
+    animation: blink 1s step-end infinite;
+  }
+
+  @keyframes blink { 50% { opacity: 0.2; } }
+
+  /* ── Middle: left column ── */
+  .middle-left {
+    grid-column: 3;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: flex-end;
+    gap: 0.4vw;
+    padding-left: 1vw;
+    z-index: 5;
+  }
+
+  /* ── Bottom row — Zmanim ── */
+  .bottom-row {
+    grid-column: 1 / -1;
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    padding-top: 0.5vw;
+    border-top: 1px solid var(--border-color);
+    z-index: 5;
+    flex-wrap: wrap;
+    gap: 0.5vw 1vw;
+  }
+
+  .zman-item {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.15vw;
+  }
+
+  .zman-item .zman-label {
+    font-size: clamp(0.55rem, 0.95vw, 0.85rem);
+    color: var(--led-red);
+    text-shadow: 0 0 5px rgba(255,50,50,0.3);
+    font-weight: 500;
+    white-space: nowrap;
+  }
+
+  .zman-item .zman-value {
+    font-size: clamp(0.8rem, 1.5vw, 1.4rem);
+    color: var(--led-white);
+    text-shadow: 0 0 8px rgba(200,210,240,0.3);
+    font-weight: 700;
+    direction: ltr;
+  }
+
+  .zman-divider {
+    width: 1px;
+    height: 2.5vw;
+    background: var(--border-color);
+  }
+
+  .loading-text, .error-text {
+    color: var(--led-red);
+    opacity: 0.5;
+    font-size: clamp(0.6rem, 1vw, 0.9rem);
+  }
+
+  @media (max-width: 800px) {
+    .led-board {
+      aspect-ratio: auto;
+      min-height: 60vh;
+      padding: 3vw;
+      gap: 1.5vw;
+    }
+  }
+</style>
+</head>
+<body>
+
+<div class="led-board">
+
+  <!-- Top row -->
+  <div class="top-row">
+    <div class="hebrew-date-top" id="hebrewDate">טוען...</div>
+    <div class="dedication" id="dedication"></div>
+    <div class="gregorian-date-top" id="gregorianDate">--/--/----</div>
+  </div>
+
+  <!-- Right column -->
+  <div class="middle-right">
+    <div class="parasha-section">
+      <div class="label">פרשת השבוע</div>
+      <div class="value" id="parashaName">טוען...</div>
+    </div>
+    <div class="info-line" id="seasonLine">משיב הרוח</div>
+    <div class="info-line">דף היומי: <span class="info-value" id="dafYomi">טוען...</span></div>
+  </div>
+
+  <!-- Center clock -->
+  <div class="clock-center">
+    <div class="day-name" id="dayName">יום ...</div>
+    <div class="clock-display" dir="ltr">
+      <span class="hours" id="clockHr">00</span>
+      <span class="colon">:</span>
+      <span class="minutes" id="clockMin">00</span>
+      <span class="colon">:</span>
+      <span class="seconds" id="clockSec">00</span>
+    </div>
+  </div>
+
+  <!-- Left column -->
+  <div class="middle-left" id="middleLeft">
+    <div class="loading-text">טוען...</div>
+  </div>
+
+  <!-- Bottom Zmanim -->
+  <div class="bottom-row" id="zmanimRow">
+    <div class="loading-text">טוען זמנים...</div>
+  </div>
+
+</div>
+
+<script>
+// ══════════════════════════════════════════
+//  CONFIG — עדכן לפי המיקום שלך
+//  רשימת ערים: https://www.hebcal.com/home/cities
+// ══════════════════════════════════════════
+const CONFIG = {
+  geonameid: 281184,   // ירושלים
+  cityName: 'ירושלים',
+  dedication: 'לע״נ אליהו סרוסי בן משה ורבקה',
+  refreshMinutes: 10,
+};
+
+// ═══ Constants ═══
+const HEBREW_DAYS = ['יום ראשון','יום שני','יום שלישי','יום רביעי','יום חמישי','יום שישי','שבת קודש'];
+
+// ═══ Helpers ═══
+const fmtDate = (d) =>
+  `${d.getFullYear()}-${String(d.getMonth()+1).padStart(2,'0')}-${String(d.getDate()).padStart(2,'0')}`;
+
+function fmtTime(isoStr) {
+  if (!isoStr) return '--:--';
+  const d = new Date(isoStr);
+  if (isNaN(d.getTime())) return '--:--';
+  return d.toLocaleTimeString('he-IL', { hour:'2-digit', minute:'2-digit', hour12: false });
+}
+
+async function fetchJSON(url) {
+  const r = await fetch(url);
+  if (!r.ok) throw new Error(`HTTP ${r.status}`);
+  return r.json();
+}
+
+// ═══ CLOCK (runs independently) ═══
+function updateClock() {
+  const now = new Date();
+  document.getElementById('clockHr').textContent  = String(now.getHours()).padStart(2,'0');
+  document.getElementById('clockMin').textContent = String(now.getMinutes()).padStart(2,'0');
+  document.getElementById('clockSec').textContent = String(now.getSeconds()).padStart(2,'0');
+  document.getElementById('dayName').textContent  = HEBREW_DAYS[now.getDay()];
+
+  const dd = String(now.getDate()).padStart(2,'0');
+  const mm = String(now.getMonth()+1).padStart(2,'0');
+  document.getElementById('gregorianDate').textContent = `${dd}/${mm}/${now.getFullYear()}`;
+}
+setInterval(updateClock, 1000);
+updateClock();
+
+// ═══ DEDICATION ═══
+document.getElementById('dedication').textContent = CONFIG.dedication;
+
+// ═══ SEASON PRAYER ═══
+function getSeasonPrayer() {
+  const m = new Date().getMonth();
+  if (m >= 3 && m <= 9) return { wind:'מוריד הטל', rain:'ותן ברכה' };
+  return { wind:'משיב הרוח ומוריד הגשם', rain:'ברך עלינו' };
+}
+
+// ═══ HEBREW DATE ═══
+async function fetchHebrewDate() {
+  try {
+    const data = await fetchJSON(
+      `https://www.hebcal.com/converter?cfg=json&date=${fmtDate(new Date())}&g2h=1&strict=1`
+    );
+    document.getElementById('hebrewDate').textContent = data.hebrew || '---';
+  } catch (e) {
+    console.warn('Hebrew date error:', e.message);
+    document.getElementById('hebrewDate').textContent = '---';
+  }
+}
+
+// ═══ ZMANIM ═══
+async function fetchZmanim() {
+  try {
+    const data = await fetchJSON(
+      `https://www.hebcal.com/zmanim?cfg=json&date=${fmtDate(new Date())}&geonameid=${CONFIG.geonameid}`
+    );
+    const t = data.times || {};
+
+    const defs = [
+      { label:'עלות השחר',     val: t.alotHaShachar },
+      { label:'הנץ החמה',      val: t.sunrise },
+      { label:'סוז״ק מג״א',   val: t.sofZmanShmaMGA },
+      { label:'סוז״ק גר״א',   val: t.sofZmanShma },
+      { label:'סוף זמן תפילה',  val: t.sofZmanTfilla },
+      { label:'חצות',          val: t.chatzot },
+      { label:'מנחה גדולה',    val: t.minchaGedola },
+      { label:'מנחה קטנה',     val: t.minchaKetana },
+      { label:'פלג המנחה',     val: t.plagHaMincha },
+      { label:'שקיעה',         val: t.sunset },
+      { label:'צאת הכוכבים',   val: t.tzeit },
+    ];
+
+    const available = defs.filter(z => z.val);
+    if (!available.length) {
+      document.getElementById('zmanimRow').innerHTML = '<div class="error-text">אין זמנים זמינים</div>';
+      return;
+    }
+
+    document.getElementById('zmanimRow').innerHTML = available.map((z, i) =>
+      (i > 0 ? '<div class="zman-divider"></div>' : '') +
+      `<div class="zman-item">
+        <span class="zman-label">${z.label}</span>
+        <span class="zman-value">${fmtTime(z.val)}</span>
+      </div>`
+    ).join('');
+
+  } catch (e) {
+    console.warn('Zmanim error:', e.message);
+    document.getElementById('zmanimRow').innerHTML = '<div class="error-text">שגיאה בטעינת זמנים</div>';
+  }
+}
+
+// ═══ PARASHA + CANDLE LIGHTING + HAVDALAH ═══
+async function fetchParashaAndShabbat() {
+  const season = getSeasonPrayer();
+
+  // Always update season text regardless of API success
+  document.getElementById('seasonLine').textContent = season.wind;
+
+  try {
+    const now = new Date();
+    const start = fmtDate(now);
+    const endD = new Date(now);
+    endD.setDate(endD.getDate() + 7);
+
+    const data = await fetchJSON(
+      `https://www.hebcal.com/hebcal?v=1&cfg=json&maj=on&min=on&mod=on&nx=on` +
+      `&year=now&month=now&ss=on&mf=on&c=on&geo=geoname&geonameid=${CONFIG.geonameid}` +
+      `&M=on&s=on&start=${start}&end=${fmtDate(endD)}&lg=he`
+    );
+
+    const items = data.items || [];
+    const parasha   = items.find(i => i.category === 'parashat');
+    const candles   = items.find(i => i.category === 'candles');
+    const havdalah  = items.find(i => i.category === 'havdalah');
+
+    // Parasha
+    document.getElementById('parashaName').textContent =
+      parasha ? (parasha.hebrew || parasha.title) : '---';
+
+    // Left column — rebuild completely each time (no duplicates)
+    let leftHTML = '';
+    if (candles)  leftHTML += `<div class="info-line">הדלקת נרות: <span class="info-value">${fmtTime(candles.date)}</span></div>`;
+    if (havdalah) leftHTML += `<div class="info-line">הבדלה: <span class="info-value">${fmtTime(havdalah.date)}</span></div>`;
+    leftHTML += `<div class="info-line">ברך עלינו: <span class="info-value">${season.rain}</span></div>`;
+    document.getElementById('middleLeft').innerHTML = leftHTML;
+
+  } catch (e) {
+    console.warn('Parasha error:', e.message);
+    document.getElementById('parashaName').textContent = '---';
+    document.getElementById('middleLeft').innerHTML =
+      `<div class="info-line">ברך עלינו: <span class="info-value">${season.rain}</span></div>`;
+  }
+}
+
+// ═══ DAF YOMI ═══
+async function fetchDafYomi() {
+  try {
+    const data = await fetchJSON('https://www.sefaria.org/api/calendars');
+    const items = data.calendar_items || [];
+    const daf = items.find(i => i.title?.en === 'Daf Yomi');
+    document.getElementById('dafYomi').textContent =
+      daf ? (daf.displayValue?.he || daf.displayValue?.en || '---') : '---';
+  } catch (e) {
+    console.warn('Daf Yomi error:', e.message);
+    document.getElementById('dafYomi').textContent = '---';
+  }
+}
+
+// ═══ INIT ═══
+async function loadAll() {
+  await Promise.allSettled([
+    fetchHebrewDate(),
+    fetchZmanim(),
+    fetchParashaAndShabbat(),
+    fetchDafYomi(),
+  ]);
+}
+
+loadAll();
+setInterval(loadAll, CONFIG.refreshMinutes * 60 * 1000);
+</script>
+</body>
+</html>
