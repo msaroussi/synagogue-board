@@ -11,8 +11,8 @@
         <div class="zman-divider"></div>
       }
       <div class="zman-item">
-        <span class="zman-label">{{ zman.label }}</span>
-        <span class="zman-value">{{ zman.value }}</span>
+        <span class="zman-label" [style.font-size]="titleFontSize()">{{ zman.label }}</span>
+        <span class="zman-value" [style.font-size]="valueFontSize()">{{ zman.value }}</span>
       </div>
     }
   }

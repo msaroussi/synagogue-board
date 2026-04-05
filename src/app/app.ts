@@ -1,21 +1,24 @@
 import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
-import { HebcalService, ZmanItem, BOARD_CONFIG } from './services/hebcal.service';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { HebcalService, ZmanItem } from './services/hebcal.service';
+import { ConfigService } from './services/config.service';
+import BOARD_CONFIG from './app.config.json';
 import { TopRow } from './components/top-row/top-row';
 import { DailyInfo } from './components/daily-info/daily-info';
 import { Clock } from './components/clock/clock';
 import { ShabbatInfo } from './components/shabbat-info/shabbat-info';
 import { ZmanimBar } from './components/zmanim-bar/zmanim-bar';
+import { ConfigPanel } from './components/config-panel/config-panel';
 
 @Component({
   selector: 'app-root',
   templateUrl: './app.html',
   styleUrl: './app.css',
-  imports: [TopRow, DailyInfo, Clock, ShabbatInfo, ZmanimBar],
+  imports: [TopRow, DailyInfo, Clock, ShabbatInfo, ZmanimBar, ConfigPanel],
 })
 export class App implements OnInit, OnDestroy {
   private hebcal = inject(HebcalService);
-
-  readonly dedication = BOARD_CONFIG.dedication;
+  readonly config = inject(ConfigService);
 
   gregorianDate = signal('--/--/----');
 
@@ -36,6 +39,13 @@ export class App implements OnInit, OnDestroy {
   dataLoaded = signal(false);
 
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
+
+  constructor() {
+    this.config.reload$.pipe(takeUntilDestroyed()).subscribe(() => {
+      this.updateDate();
+      this.loadAll();
+    });
+  }
 
   ngOnInit(): void {
     this.updateDate();
@@ -58,6 +68,8 @@ export class App implements OnInit, OnDestroy {
   }
 
   private loadAll(): void {
+    const geonameid = this.config.geonameid();
+
     const season = this.hebcal.getSeasonPrayer();
     this.seasonWind.set(season.wind);
     this.seasonRain.set(season.rain);
@@ -67,7 +79,7 @@ export class App implements OnInit, OnDestroy {
       error: () => this.hebrewDate.set('---'),
     });
 
-    this.hebcal.fetchZmanim(BOARD_CONFIG.geonameid).subscribe({
+    this.hebcal.fetchZmanim(geonameid).subscribe({
       next: (items) => {
         this.zmanim.set(items);
         this.zmanimLoading.set(false);
@@ -79,7 +91,7 @@ export class App implements OnInit, OnDestroy {
       },
     });
 
-    this.hebcal.fetchParashaAndShabbat(BOARD_CONFIG.geonameid).subscribe({
+    this.hebcal.fetchParashaAndShabbat(geonameid).subscribe({
       next: (result) => {
         this.parashaName.set(result.parashaName);
         this.showOmer.set(result.showOmer);

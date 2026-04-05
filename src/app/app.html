@@ -1,8 +1,10 @@
-<div class="led-board">
+<div class="led-board" [style.width]="config.boardWidth()" [style.height]="config.boardHeight()">
+
+  <app-config-panel />
 
   <app-top-row
     [hebrewDate]="hebrewDate()"
-    [dedication]="dedication"
+    [dedication]="config.dedication()"
     [gregorianDate]="gregorianDate()" />
 
   <app-daily-info

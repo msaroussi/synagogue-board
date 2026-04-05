@@ -42,6 +42,9 @@
 
 .clock-display .colon {
   margin: 0 0.1vw;
+}
+
+.blink {
   animation: blink 1s step-end infinite;
 }
 

@@ -1,4 +1,5 @@
-import { Component, OnInit, OnDestroy, signal } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { ConfigService } from '../../services/config.service';
 
 const HEBREW_DAYS = ['יום ראשון', 'יום שני', 'יום שלישי', 'יום רביעי', 'יום חמישי', 'יום שישי', 'שבת קודש'];
 
@@ -8,6 +9,14 @@ const HEBREW_DAYS = ['יום ראשון', 'יום שני', 'יום שלישי', 
   styleUrl: './clock.css',
 })
 export class Clock implements OnInit, OnDestroy {
+  private config = inject(ConfigService);
+
+  readonly blinkColon = this.config.blinkColon;
+  readonly dayFontSize = this.config.clockDayFontSize;
+  readonly hourFontSize = this.config.clockHourFontSize;
+  readonly minuteFontSize = this.config.clockMinuteFontSize;
+  readonly secondFontSize = this.config.clockSecondFontSize;
+
   clockHr = signal('00');
   clockMin = signal('00');
   clockSec = signal('00');

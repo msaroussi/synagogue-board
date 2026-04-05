@@ -1,11 +1,11 @@
 <div class="middle-right">
   <div class="parasha-section">
-    <div class="label">פרשת השבוע</div>
-    <div class="value">{{ parashaName() }}</div>
+    <div class="label" [style.font-size]="parashaLabelFontSize()">פרשת השבוע</div>
+    <div class="value" [style.font-size]="parashaValueFontSize()">{{ parashaName() }}</div>
   </div>
   @if (showOmer()) {
-    <div class="info-line">ספירת העומר: <span class="info-value">{{ omerCount() }}</span></div>
+    <div class="info-line" [style.font-size]="infoLineFontSize()">ספירת העומר: <span class="info-value">{{ omerCount() }}</span></div>
   }
-  <div class="info-line">{{ seasonWind() }}</div>
-  <div class="info-line">דף היומי: <span class="info-value">{{ dafYomi() }}</span></div>
+  <div class="info-line" [style.font-size]="infoLineFontSize()">{{ seasonWind() }}</div>
+  <div class="info-line" [style.font-size]="infoLineFontSize()">דף היומי: <span class="info-value">{{ dafYomi() }}</span></div>
 </div>

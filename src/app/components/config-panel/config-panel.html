@@ -1,0 +1,76 @@
+@if (gearVisible) {
+  <button class="config-toggle" (click)="panelOpen = !panelOpen" title="הגדרות">
+    <img src="assets/icons/gear-svgrepo-com.svg" width="15" height="15" alt="הגדרות" />
+  </button>
+}
+
+@if (panelOpen) {
+  <div class="config-overlay" (click)="panelOpen = false"></div>
+  <div class="config-panel" [style.left.px]="panelX" [style.top.px]="panelY">
+    <div class="panel-header" (mousedown)="onHeaderMouseDown($event)">
+      <span>הגדרות</span>
+      <button class="close-btn" (click)="panelOpen = false">✕</button>
+    </div>
+
+    <div class="panel-body">
+      <div class="section-title">גודל גופן</div>
+
+      @for (item of fontSizeItems; track item.key) {
+        <div class="font-size-row">
+          <span class="font-label">{{ item.label }}</span>
+          <div class="font-controls">
+            <button (click)="config.adjustFontSize(item.key, -5)">−</button>
+            <span class="font-pct">{{ config.fontSizePercents()[item.key] }}%</span>
+            <button (click)="config.adjustFontSize(item.key, 5)">+</button>
+          </div>
+        </div>
+      }
+
+      <div class="section-title">גודל לוח</div>
+
+      <div class="font-size-row">
+        <span class="font-label">רוחב</span>
+        <div class="font-controls">
+          <button (click)="config.adjustBoardSize('width', -1)">−</button>
+          <span class="font-pct board-val">{{ config.boardWidth() }}</span>
+          <button (click)="config.adjustBoardSize('width', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="font-size-row">
+        <span class="font-label">גובה</span>
+        <div class="font-controls">
+          <button (click)="config.adjustBoardSize('height', -1)">−</button>
+          <span class="font-pct board-val">{{ config.boardHeight() }}</span>
+          <button (click)="config.adjustBoardSize('height', 1)">+</button>
+        </div>
+      </div>
+
+      <div class="section-title">הגדרות כלליות</div>
+
+      <div class="setting-row">
+        <label>הבהוב נקודתיים</label>
+        <button class="toggle-btn" [class.active]="config.blinkColon()" (click)="config.toggleBlinkColon()">
+          {{ config.blinkColon() ? 'פועל' : 'כבוי' }}
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <label>הקדשה</label>
+        <input #dedInput type="text" [value]="config.dedication()" (input)="config.updateDedication(dedInput.value)" />
+      </div>
+
+      <div class="setting-row">
+        <label>שם עיר</label>
+        <input #cityInput type="text" [value]="config.cityName()" (input)="config.updateCityName(cityInput.value)" />
+      </div>
+
+      <div class="setting-row">
+        <label>מזהה עיר</label>
+        <input #geoInput type="number" [value]="config.geonameid()" (change)="onGeoChange(geoInput.value)" />
+      </div>
+
+      <button class="reset-btn" (click)="config.resetToDefaults()">איפוס לברירת מחדל</button>
+    </div>
+  </div>
+}

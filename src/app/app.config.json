@@ -1,0 +1,24 @@
+{
+  "geonameid": 281184,
+  "cityName": "ירושלים",
+  "dedication": "לע״נ אליהו סרוסי בן משה ורבקה",
+  "refreshMinutes": 10,
+  "blinkColon": false,
+  "boardWidth": "96vw",
+  "boardHeight": "24vw",
+  "fontSizes": {
+    "zmanimBarTitle": "clamp(0.55rem, 0.95vw, 0.85rem)",
+    "zmanimBarValue": "clamp(0.8rem, 1.5vw, 1.4rem)",
+    "topRowHebrewDate": "clamp(0.9rem, 1.8vw, 1.6rem)",
+    "topRowDedication": "clamp(0.7rem, 1.3vw, 1.2rem)",
+    "topRowGregorianDate": "clamp(0.8rem, 1.5vw, 1.3rem)",
+    "shabbatInfoLine": "clamp(0.6rem, 1vw, 0.95rem)",
+    "dailyInfoParashaLabel": "clamp(0.65rem, 1.1vw, 1rem)",
+    "dailyInfoParashaValue": "clamp(1rem, 2vw, 1.8rem)",
+    "dailyInfoLine": "clamp(0.6rem, 1vw, 0.95rem)",
+    "clockDay": "clamp(1rem, 2.2vw, 2rem)",
+    "clockHour": "clamp(3rem, 8vw, 8rem)",
+    "clockMinute": "clamp(3rem, 8vw, 8rem)",
+    "clockSecond": "clamp(1.5rem, 3.5vw, 3.5rem)"
+  }
+}

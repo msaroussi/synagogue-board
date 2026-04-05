@@ -25,7 +25,6 @@ body {
   border-radius: 8px;
   width: 96vw;
   max-width: 1800px;
-  aspect-ratio: 4 / 1;
   position: relative;
   overflow: hidden;
   box-shadow:
@@ -63,7 +62,7 @@ body {
   .led-board {
     aspect-ratio: auto;
     min-height: 60vh;
-    padding: 3vw;
+    padding: 1vw;
     gap: 1.5vw;
   }
 }

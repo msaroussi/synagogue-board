@@ -15,19 +15,31 @@ export interface ParashaResult {
   havdalah: string;
 }
 
+export interface FontSizesConfig {
+  zmanimBarTitle: string;
+  zmanimBarValue: string;
+  topRowHebrewDate: string;
+  topRowDedication: string;
+  topRowGregorianDate: string;
+  shabbatInfoLine: string;
+  dailyInfoParashaLabel: string;
+  dailyInfoParashaValue: string;
+  dailyInfoLine: string;
+  clockDay: string;
+  clockHour: string;
+  clockMinute: string;
+  clockSecond: string;
+}
+
 export interface BoardConfig {
   geonameid: number;
   cityName: string;
   dedication: string;
   refreshMinutes: number;
+  blinkColon: boolean;
+  fontSizes: FontSizesConfig;
 }
 
-export const BOARD_CONFIG: BoardConfig = {
-  geonameid: 281184,   // ירושלים
-  cityName: 'ירושלים',
-  dedication: 'לע״נ אליהו סרוסי בן משה ורבקה',
-  refreshMinutes: 10,
-};
 
 @Injectable({ providedIn: 'root' })
 export class HebcalService {

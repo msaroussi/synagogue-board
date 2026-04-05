@@ -4,8 +4,8 @@
 
 .top-row {
   grid-column: 1 / -1;
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
   align-items: center;
   padding-bottom: 0.5vw;
   border-bottom: 1px solid var(--border-color);
@@ -24,7 +24,6 @@
   color: var(--led-white);
   text-shadow: 0 0 6px rgba(200,210,240,0.3);
   text-align: center;
-  flex: 1;
   padding: 0 2vw;
 }
 
@@ -34,4 +33,5 @@
   text-shadow: 0 0 8px rgba(255,50,50,0.4);
   direction: ltr;
   font-weight: 500;
+  text-align: left;
 }

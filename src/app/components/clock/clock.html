@@ -1,10 +1,10 @@
 <div class="clock-center">
-  <div class="day-name">{{ dayName() }}</div>
+  <div class="day-name" [style.font-size]="dayFontSize()">{{ dayName() }}</div>
   <div class="clock-display" dir="ltr">
-    <span class="hours">{{ clockHr() }}</span>
-    <span class="colon">:</span>
-    <span class="minutes">{{ clockMin() }}</span>
-    <span class="colon">:</span>
-    <span class="seconds">{{ clockSec() }}</span>
+    <span class="hours" [style.font-size]="hourFontSize()">{{ clockHr() }}</span>
+    <span class="colon" [class.blink]="blinkColon()">:</span>
+    <span class="minutes" [style.font-size]="minuteFontSize()">{{ clockMin() }}</span>
+    <span class="colon" [class.blink]="blinkColon()">:</span>
+    <span class="seconds" [style.font-size]="secondFontSize()">{{ clockSec() }}</span>
   </div>
 </div>
