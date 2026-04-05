@@ -1,4 +1,4 @@
-@if (gearVisible) {
+@if (config.configMode()) {
   <button class="config-toggle" (click)="panelOpen = !panelOpen" title="הגדרות">
     <img src="assets/icons/gear-svgrepo-com.svg" width="15" height="15" alt="הגדרות" />
   </button>
@@ -52,6 +52,13 @@
         <label>הבהוב נקודתיים</label>
         <button class="toggle-btn" [class.active]="config.blinkColon()" (click)="config.toggleBlinkColon()">
           {{ config.blinkColon() ? 'פועל' : 'כבוי' }}
+        </button>
+      </div>
+
+      <div class="setting-row">
+        <label>חלוקת מסך</label>
+        <button class="toggle-btn" [class.active]="config.splitView()" (click)="config.toggleSplitView()">
+          {{ config.splitView() ? 'פועל' : 'כבוי' }}
         </button>
       </div>
 

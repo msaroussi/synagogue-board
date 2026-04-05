@@ -16,6 +16,8 @@ interface StoredConfig {
   boardWidth: string;
   boardHeight: string;
   fontSizePercents: Record<string, number>;
+  splitView?: boolean;
+  splitPosition?: number;
 }
 
 function defaultPercents(): Record<FontSizeKey, number> {
@@ -31,6 +33,9 @@ export class ConfigService {
   readonly boardWidth = signal(BOARD_CONFIG.boardWidth);
   readonly boardHeight = signal(BOARD_CONFIG.boardHeight);
   readonly fontSizePercents = signal<Record<FontSizeKey, number>>(defaultPercents());
+  readonly splitView = signal(false);
+  readonly splitPosition = signal(50);
+  readonly configMode = signal(false);
 
   private readonly _reload = new Subject<void>();
   readonly reload$ = this._reload.asObservable();
@@ -79,6 +84,8 @@ export class ConfigService {
           ...stored.fontSizePercents,
         } as Record<FontSizeKey, number>);
       }
+      if (stored.splitView != null) this.splitView.set(stored.splitView);
+      if (stored.splitPosition != null) this.splitPosition.set(stored.splitPosition);
     } catch {
       this.saveToStorage();
     }
@@ -93,6 +100,8 @@ export class ConfigService {
       boardWidth: this.boardWidth(),
       boardHeight: this.boardHeight(),
       fontSizePercents: this.fontSizePercents(),
+      splitView: this.splitView(),
+      splitPosition: this.splitPosition(),
     };
     localStorage.setItem(STORAGE_KEY, JSON.stringify(config));
   }
@@ -137,10 +146,24 @@ export class ConfigService {
     this.saveToStorage();
   }
 
+  toggleSplitView(): void {
+    this.splitView.update(v => !v);
+    this.saveToStorage();
+  }
+
+  updateSplitPosition(position: number): void {
+    this.splitPosition.set(Math.max(10, Math.min(90, position)));
+    this.saveToStorage();
+  }
+
+  toggleConfigMode(): void {
+    this.configMode.update(v => !v);
+  }
+
   adjustFontSize(key: FontSizeKey, delta: number): void {
     this.fontSizePercents.update(current => ({
       ...current,
-      [key]: Math.max(50, Math.min(200, current[key] + delta)),
+      [key]: Math.max(20, Math.min(300, current[key] + delta)),
     }));
     this.saveToStorage();
   }
@@ -153,6 +176,8 @@ export class ConfigService {
     this.boardWidth.set(BOARD_CONFIG.boardWidth);
     this.boardHeight.set(BOARD_CONFIG.boardHeight);
     this.fontSizePercents.set(defaultPercents());
+    this.splitView.set(false);
+    this.splitPosition.set(50);
     this.saveToStorage();
     this._reload.next();
   }

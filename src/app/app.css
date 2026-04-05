@@ -1,0 +1,56 @@
+.app-container {
+  display: contents;
+}
+
+.split-left {
+  display: contents;
+}
+
+.app-container.split-active {
+  display: flex;
+  direction: ltr;
+  width: 100vw;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-container.split-active .split-left {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+  flex-shrink: 0;
+}
+
+.app-container.split-active .split-left .led-board {
+  width: 100% !important;
+  height: 100% !important;
+  max-width: none;
+  border-radius: 0;
+  border: none;
+  direction: rtl;
+}
+
+.split-separator {
+  width: 2px;
+  background: #333;
+  flex-shrink: 0;
+  cursor: default;
+  user-select: none;
+}
+
+.split-separator.draggable {
+  cursor: col-resize;
+  background: rgba(100, 140, 255, 0.4);
+  transition: background 0.15s;
+}
+
+.split-separator.draggable:hover {
+  background: rgba(100, 140, 255, 0.7);
+}
+
+.split-right {
+  flex: 1;
+  background: var(--bg, #0c0c10);
+  min-width: 0;
+}

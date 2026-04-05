@@ -1,30 +1,42 @@
-<div class="led-board" [style.width]="config.boardWidth()" [style.height]="config.boardHeight()">
+<div class="app-container" [class.split-active]="config.splitView()">
+  <div class="split-left" [style.width]="config.splitView() ? config.splitPosition() + '%' : null">
+    <div class="led-board" [style.width]="config.boardWidth()" [style.height]="config.boardHeight()">
 
-  <app-config-panel />
+      <app-config-panel />
 
-  <app-top-row
-    [hebrewDate]="hebrewDate()"
-    [dedication]="config.dedication()"
-    [gregorianDate]="gregorianDate()" />
+      <app-top-row
+        [hebrewDate]="hebrewDate()"
+        [dedication]="config.dedication()"
+        [gregorianDate]="gregorianDate()" />
 
-  <app-daily-info
-    [parashaName]="parashaName()"
-    [showOmer]="showOmer()"
-    [omerCount]="omerCount()"
-    [seasonWind]="seasonWind()"
-    [dafYomi]="dafYomi()" />
+      <app-daily-info
+        [parashaName]="parashaName()"
+        [showOmer]="showOmer()"
+        [omerCount]="omerCount()"
+        [seasonWind]="seasonWind()"
+        [dafYomi]="dafYomi()" />
 
-  <app-clock />
+      <app-clock />
 
-  <app-shabbat-info
-    [dataLoaded]="dataLoaded()"
-    [candleLighting]="candleLighting()"
-    [havdalahTime]="havdalahTime()"
-    [seasonRain]="seasonRain()" />
+      <app-shabbat-info
+        [dataLoaded]="dataLoaded()"
+        [candleLighting]="candleLighting()"
+        [havdalahTime]="havdalahTime()"
+        [seasonRain]="seasonRain()" />
 
-  <app-zmanim-bar
-    [zmanimLoading]="zmanimLoading()"
-    [zmanimError]="zmanimError()"
-    [zmanim]="zmanim()" />
+      <app-zmanim-bar
+        [zmanimLoading]="zmanimLoading()"
+        [zmanimError]="zmanimError()"
+        [zmanim]="zmanim()" />
 
+    </div>
+  </div>
+
+  @if (config.splitView()) {
+    <div class="split-separator"
+         [class.draggable]="config.configMode()"
+         (mousedown)="onSeparatorMouseDown($event)">
+    </div>
+    <div class="split-right"></div>
+  }
 </div>

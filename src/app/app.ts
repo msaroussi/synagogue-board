@@ -1,4 +1,4 @@
-import { Component, OnInit, OnDestroy, signal, inject } from '@angular/core';
+import { Component, OnInit, OnDestroy, signal, inject, HostListener } from '@angular/core';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { HebcalService, ZmanItem } from './services/hebcal.service';
 import { ConfigService } from './services/config.service';
@@ -39,6 +39,25 @@ export class App implements OnInit, OnDestroy {
   dataLoaded = signal(false);
 
   private refreshInterval: ReturnType<typeof setInterval> | null = null;
+  private separatorDragging = false;
+
+  @HostListener('document:mousemove', ['$event'])
+  onDocMouseMove(event: MouseEvent): void {
+    if (!this.separatorDragging) return;
+    const pct = (event.clientX / window.innerWidth) * 100;
+    this.config.updateSplitPosition(pct);
+  }
+
+  @HostListener('document:mouseup')
+  onDocMouseUp(): void {
+    this.separatorDragging = false;
+  }
+
+  onSeparatorMouseDown(event: MouseEvent): void {
+    if (!this.config.configMode()) return;
+    this.separatorDragging = true;
+    event.preventDefault();
+  }
 
   constructor() {
     this.config.reload$.pipe(takeUntilDestroyed()).subscribe(() => {

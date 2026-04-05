@@ -9,7 +9,6 @@ import { ConfigService, FontSizeKey } from '../../services/config.service';
 export class ConfigPanel {
   readonly config = inject(ConfigService);
   panelOpen = false;
-  gearVisible = false;
 
   panelX = 10;
   panelY = 50;
@@ -21,8 +20,8 @@ export class ConfigPanel {
   onKeyDown(event: KeyboardEvent): void {
     if (event.altKey && event.code === 'KeyC') {
       event.preventDefault();
-      this.gearVisible = !this.gearVisible;
-      if (!this.gearVisible) this.panelOpen = false;
+      this.config.toggleConfigMode();
+      if (!this.config.configMode()) this.panelOpen = false;
     }
   }
 
