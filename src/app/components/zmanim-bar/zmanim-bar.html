@@ -1,0 +1,19 @@
+<div class="bottom-row">
+  @if (zmanimLoading()) {
+    <div class="loading-text">טוען זמנים...</div>
+  } @else if (zmanimError()) {
+    <div class="error-text">שגיאה בטעינת זמנים</div>
+  } @else if (zmanim().length === 0) {
+    <div class="error-text">אין זמנים זמינים</div>
+  } @else {
+    @for (zman of zmanim(); track zman.label; let i = $index) {
+      @if (i > 0) {
+        <div class="zman-divider"></div>
+      }
+      <div class="zman-item">
+        <span class="zman-label">{{ zman.label }}</span>
+        <span class="zman-value">{{ zman.value }}</span>
+      </div>
+    }
+  }
+</div>

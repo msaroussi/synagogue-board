@@ -1,0 +1,13 @@
+<div class="middle-left">
+  @if (!dataLoaded()) {
+    <div class="loading-text">טוען...</div>
+  } @else {
+    @if (candleLighting()) {
+      <div class="info-line">הדלקת נרות: <span class="info-value">{{ candleLighting() }}</span></div>
+    }
+    @if (havdalahTime()) {
+      <div class="info-line">הבדלה: <span class="info-value">{{ havdalahTime() }}</span></div>
+    }
+    <div class="info-line">ברך עלינו: <span class="info-value">{{ seasonRain() }}</span></div>
+  }
+</div>

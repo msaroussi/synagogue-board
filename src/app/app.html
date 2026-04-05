@@ -1,0 +1,28 @@
+<div class="led-board">
+
+  <app-top-row
+    [hebrewDate]="hebrewDate()"
+    [dedication]="dedication"
+    [gregorianDate]="gregorianDate()" />
+
+  <app-daily-info
+    [parashaName]="parashaName()"
+    [showOmer]="showOmer()"
+    [omerCount]="omerCount()"
+    [seasonWind]="seasonWind()"
+    [dafYomi]="dafYomi()" />
+
+  <app-clock />
+
+  <app-shabbat-info
+    [dataLoaded]="dataLoaded()"
+    [candleLighting]="candleLighting()"
+    [havdalahTime]="havdalahTime()"
+    [seasonRain]="seasonRain()" />
+
+  <app-zmanim-bar
+    [zmanimLoading]="zmanimLoading()"
+    [zmanimError]="zmanimError()"
+    [zmanim]="zmanim()" />
+
+</div>

@@ -1,0 +1,37 @@
+:host {
+  display: contents;
+}
+
+.top-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.5vw;
+  border-bottom: 1px solid var(--border-color);
+  z-index: 5;
+}
+
+.hebrew-date-top {
+  font-family: 'Secular One', 'Heebo', sans-serif;
+  font-size: clamp(0.9rem, 1.8vw, 1.6rem);
+  color: var(--led-red);
+  text-shadow: 0 0 8px rgba(255,50,50,0.4);
+}
+
+.dedication {
+  font-size: clamp(0.7rem, 1.3vw, 1.2rem);
+  color: var(--led-white);
+  text-shadow: 0 0 6px rgba(200,210,240,0.3);
+  text-align: center;
+  flex: 1;
+  padding: 0 2vw;
+}
+
+.gregorian-date-top {
+  font-size: clamp(0.8rem, 1.5vw, 1.3rem);
+  color: var(--led-red);
+  text-shadow: 0 0 8px rgba(255,50,50,0.4);
+  direction: ltr;
+  font-weight: 500;
+}

@@ -1,0 +1,32 @@
+:host {
+  display: contents;
+}
+
+.middle-left {
+  grid-column: 3;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  align-items: flex-end;
+  gap: 0.4vw;
+  padding-left: 1vw;
+  z-index: 5;
+}
+
+.info-line {
+  font-size: clamp(0.6rem, 1vw, 0.95rem);
+  color: var(--led-red);
+  text-shadow: 0 0 5px rgba(255,50,50,0.3);
+}
+
+.info-line .info-value {
+  color: var(--led-white);
+  text-shadow: 0 0 6px rgba(200,210,240,0.3);
+  font-weight: 500;
+}
+
+.loading-text {
+  color: var(--led-red);
+  opacity: 0.5;
+  font-size: clamp(0.6rem, 1vw, 0.9rem);
+}

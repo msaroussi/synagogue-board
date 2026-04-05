@@ -1,0 +1,50 @@
+:host {
+  display: contents;
+}
+
+.bottom-row {
+  grid-column: 1 / -1;
+  display: flex;
+  justify-content: space-around;
+  align-items: center;
+  padding-top: 0.5vw;
+  border-top: 1px solid var(--border-color);
+  z-index: 5;
+  flex-wrap: wrap;
+  gap: 0.5vw 1vw;
+}
+
+.zman-item {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0.15vw;
+}
+
+.zman-item .zman-label {
+  font-size: clamp(0.55rem, 0.95vw, 0.85rem);
+  color: var(--led-red);
+  text-shadow: 0 0 5px rgba(255,50,50,0.3);
+  font-weight: 500;
+  white-space: nowrap;
+}
+
+.zman-item .zman-value {
+  font-size: clamp(0.8rem, 1.5vw, 1.4rem);
+  color: var(--led-white);
+  text-shadow: 0 0 8px rgba(200,210,240,0.3);
+  font-weight: 700;
+  direction: ltr;
+}
+
+.zman-divider {
+  width: 1px;
+  height: 2.5vw;
+  background: var(--border-color);
+}
+
+.loading-text, .error-text {
+  color: var(--led-red);
+  opacity: 0.5;
+  font-size: clamp(0.6rem, 1vw, 0.9rem);
+}
