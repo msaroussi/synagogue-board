@@ -5,7 +5,7 @@
 }
 
 @if (panelOpen) {
-  <div class="config-overlay" (click)="panelOpen = false"></div>
+  <div class="config-overlay" (click)="panelOpen = false" (keydown.enter)="panelOpen = false" role="button" tabindex="0"></div>
   <div class="config-panel" [style.left.px]="panelX" [style.top.px]="panelY">
     <div class="panel-header" (mousedown)="onHeaderMouseDown($event)">
       <span>הגדרות</span>
@@ -49,32 +49,32 @@
       <div class="section-title">הגדרות כלליות</div>
 
       <div class="setting-row">
-        <label>הבהוב נקודתיים</label>
+        <span class="font-label">הבהוב נקודתיים</span>
         <button class="toggle-btn" [class.active]="config.blinkColon()" (click)="config.toggleBlinkColon()">
           {{ config.blinkColon() ? 'פועל' : 'כבוי' }}
         </button>
       </div>
 
       <div class="setting-row">
-        <label>חלוקת מסך</label>
+        <span class="font-label">חלוקת מסך</span>
         <button class="toggle-btn" [class.active]="config.splitView()" (click)="config.toggleSplitView()">
           {{ config.splitView() ? 'פועל' : 'כבוי' }}
         </button>
       </div>
 
       <div class="setting-row">
-        <label>הקדשה</label>
-        <input #dedInput type="text" [value]="config.dedication()" (input)="config.updateDedication(dedInput.value)" />
+        <label for="dedInput">הקדשה</label>
+        <input id="dedInput" #dedInput type="text" [value]="config.dedication()" (input)="config.updateDedication(dedInput.value)" />
       </div>
 
       <div class="setting-row">
-        <label>שם עיר</label>
-        <input #cityInput type="text" [value]="config.cityName()" (input)="config.updateCityName(cityInput.value)" />
+        <label for="cityInput">שם עיר</label>
+        <input id="cityInput" #cityInput type="text" [value]="config.cityName()" (input)="config.updateCityName(cityInput.value)" />
       </div>
 
       <div class="setting-row">
-        <label>מזהה עיר</label>
-        <input #geoInput type="number" [value]="config.geonameid()" (change)="onGeoChange(geoInput.value)" />
+        <label for="geoInput">מזהה עיר</label>
+        <input id="geoInput" #geoInput type="number" [value]="config.geonameid()" (change)="onGeoChange(geoInput.value)" />
       </div>
 
       <button class="reset-btn" (click)="config.resetToDefaults()">איפוס לברירת מחדל</button>
