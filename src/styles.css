@@ -24,7 +24,7 @@ body {
   border: 3px solid #222230;
   border-radius: 8px;
   width: 96vw;
-  max-width: 1800px;
+  max-width: none;
   position: relative;
   overflow: hidden;
   box-shadow:
