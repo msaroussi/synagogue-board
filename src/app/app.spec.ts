@@ -94,37 +94,62 @@ describe('App', () => {
 
   it('should handle hebrew date error', fakeAsync(() => {
     fixture.detectChanges();
-    httpMock.match(() => true).forEach((req) => {
-      if (req.request.url.includes('converter')) {
-        req.flush('Error', { status: 500, statusText: 'Error' });
-      } else if (req.request.url.includes('/zmanim')) {
-        req.flush({ times: {} });
-      } else if (req.request.url.includes('hebcal')) {
-        req.flush({ items: [] });
-      } else if (req.request.url.includes('sefaria')) {
-        req.flush({ calendar_items: [] });
-      }
-    });
+
+    function flushWithErrors(): void {
+      httpMock.match(() => true).forEach((req) => {
+        if (req.cancelled) return;
+        if (req.request.url.includes('converter')) {
+          req.flush('Error', { status: 500, statusText: 'Error' });
+        } else if (req.request.url.includes('assets/cache/')) {
+          req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+        } else if (req.request.url.includes('/zmanim')) {
+          req.flush({ times: {} });
+        } else if (req.request.url.includes('hebcal')) {
+          req.flush({ items: [] });
+        } else if (req.request.url.includes('sefaria')) {
+          req.flush({ calendar_items: [] });
+        }
+      });
+    }
+
+    // First pass: flush API requests (converter will error, triggering CacheService)
+    flushWithErrors();
+    // Second pass: flush cache requests (will 404, triggering LocalComputeService)
+    flushWithErrors();
     tick();
-    expect(component.hebrewDate()).toBe('---');
+    // When API fails, CacheService also fails (404), so LocalComputeService provides the date
+    expect(component.hebrewDate()).toMatch(/[\u05D0-\u05EA]/); // Hebrew characters
     discardPeriodicTasks();
   }));
 
   it('should handle zmanim error', fakeAsync(() => {
     fixture.detectChanges();
-    httpMock.match(() => true).forEach((req) => {
-      if (req.request.url.includes('/zmanim')) {
-        req.flush('Error', { status: 500, statusText: 'Error' });
-      } else if (req.request.url.includes('converter')) {
-        req.flush({ hebrew: 'test' });
-      } else if (req.request.url.includes('hebcal')) {
-        req.flush({ items: [] });
-      } else if (req.request.url.includes('sefaria')) {
-        req.flush({ calendar_items: [] });
-      }
-    });
+
+    function flushZmanimWithErrors(): void {
+      httpMock.match(() => true).forEach((req) => {
+        if (req.cancelled) return;
+        if (req.request.url.includes('/zmanim')) {
+          req.flush('Error', { status: 500, statusText: 'Error' });
+        } else if (req.request.url.includes('assets/cache/')) {
+          req.flush('Not Found', { status: 404, statusText: 'Not Found' });
+        } else if (req.request.url.includes('converter')) {
+          req.flush({ hebrew: 'test' });
+        } else if (req.request.url.includes('hebcal')) {
+          req.flush({ items: [] });
+        } else if (req.request.url.includes('sefaria')) {
+          req.flush({ calendar_items: [] });
+        }
+      });
+    }
+
+    // First pass: flush API requests (zmanim will error, triggering CacheService)
+    flushZmanimWithErrors();
+    // Second pass: flush cache requests (will 404, triggering LocalComputeService)
+    flushZmanimWithErrors();
     tick();
-    expect(component.zmanimError()).toBe(true);
+    // When API fails, CacheService also fails (404), so LocalComputeService provides zmanim
+    // zmanimError is false because local compute returns actual zmanim data
+    expect(component.zmanimError()).toBe(false);
     expect(component.zmanimLoading()).toBe(false);
     discardPeriodicTasks();
   }));
