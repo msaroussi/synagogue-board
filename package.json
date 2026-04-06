@@ -8,6 +8,8 @@
     "watch": "ng build --watch --configuration development",
     "test": "jest",
     "test:ci": "jest --ci --coverage",
+    "prebuild": "ts-node --project tsconfig.scripts.json scripts/generate-cache.ts --prebuild",
+    "generate-cache": "ts-node --project tsconfig.scripts.json scripts/generate-cache.ts",
     "lint": "eslint \"src/**/*.{ts,html}\""
   },
   "private": true,
@@ -17,6 +19,8 @@
     "@angular/compiler": "^21.2.0",
     "@angular/core": "^21.2.0",
     "@angular/platform-browser": "^21.2.0",
+    "@angular/service-worker": "^21.2.7",
+    "@hebcal/core": "^6.0.8",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
@@ -31,6 +35,7 @@
     "@angular/platform-browser-dynamic": "^21.2.7",
     "@eslint/js": "^10.0.1",
     "@types/jest": "^30.0.0",
+    "@types/node": "^25.5.2",
     "@typescript-eslint/eslint-plugin": "^8.58.0",
     "@typescript-eslint/parser": "^8.58.0",
     "angular-eslint": "^21.3.1",
@@ -39,6 +44,7 @@
     "jest-environment-jsdom": "^30.3.0",
     "jest-preset-angular": "^16.1.2",
     "ts-jest": "^29.4.9",
+    "ts-node": "^10.9.2",
     "typescript": "~5.9.2",
     "typescript-eslint": "^8.58.0",
     "zone.js": "^0.16.1"
