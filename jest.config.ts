@@ -18,7 +18,13 @@ const config: Config = {
           },
         ],
       },
-      transformIgnorePatterns: ['node_modules/(?!.*\\.mjs$)'],
+      transformIgnorePatterns: ['node_modules/(?!(.*\\.mjs$|@hebcal/|temporal-polyfill|quick-lru|humanize-duration))'],
+      moduleNameMapper: {
+        '^@hebcal/core$': '<rootDir>/node_modules/@hebcal/core/dist/esm/index.js',
+        '^@hebcal/hdate$': '<rootDir>/node_modules/@hebcal/hdate/dist/esm/index.js',
+        '^@hebcal/noaa$': '<rootDir>/node_modules/@hebcal/noaa/dist/index.js',
+        '^@hebcal/learning$': '<rootDir>/node_modules/@hebcal/learning/dist/esm/index.js',
+      },
       moduleFileExtensions: ['ts', 'js', 'html', 'json'],
       collectCoverageFrom: [
         'src/app/**/*.ts',
