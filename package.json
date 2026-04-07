@@ -21,6 +21,7 @@
     "@angular/platform-browser": "^21.2.0",
     "@angular/service-worker": "^21.2.7",
     "@hebcal/core": "^6.0.8",
+    "@hebcal/learning": "^6.7.2",
     "rxjs": "~7.8.0",
     "tslib": "^2.3.0"
   },
