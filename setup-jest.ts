@@ -1,3 +1,8 @@
+// Polyfill structuredClone for older jsdom environments
+if (typeof globalThis.structuredClone === 'undefined') {
+  globalThis.structuredClone = (obj: unknown) => JSON.parse(JSON.stringify(obj));
+}
+
 import 'zone.js';
 import 'zone.js/testing';
 import { getTestBed } from '@angular/core/testing';

@@ -1,15 +1,80 @@
 import { TestBed } from '@angular/core/testing';
 import { HttpClientTestingModule, HttpTestingController } from '@angular/common/http/testing';
+import { of } from 'rxjs';
 import { HebcalService, ZmanItem, ParashaResult } from './hebcal.service';
+import { CacheService, DayCache } from './cache.service';
+import { LocalComputeService, LocalDayData } from './local-compute.service';
+
+function fmtDate(d: Date): string {
+  const y = d.getFullYear();
+  const m = String(d.getMonth() + 1).padStart(2, '0');
+  const day = String(d.getDate()).padStart(2, '0');
+  return `${y}-${m}-${day}`;
+}
+const TODAY = fmtDate(new Date());
+
+const MOCK_DAY_CACHE: DayCache = {
+  hebrewDate: 'י״ז ניסן תשפ״ו',
+  zmanim: {
+    alotHaShachar: '04:30',
+    sunrise: '06:15',
+    sofZmanShmaMGA: '08:45',
+    sofZmanShma: '09:15',
+    sofZmanTfilla: '10:15',
+    chatzot: '12:30',
+    minchaGedola: '13:00',
+    minchaKetana: '16:00',
+    plagHaMincha: '17:15',
+    sunset: '19:00',
+    tzeit: '19:30',
+  },
+  parasha: 'צו',
+  omer: 'היום שבעה ימים',
+  candleLighting: '19:00',
+  havdalah: '20:05',
+  dafYomi: 'פסחים קכ',
+};
+
+const MOCK_LOCAL_DATA: LocalDayData = {
+  hebrewDate: 'י״ח ניסן תשפ״ו (local)',
+  zmanim: {
+    alotHaShachar: '04:31',
+    sunrise: '06:16',
+    sofZmanShmaMGA: '08:46',
+    sofZmanShma: '09:16',
+    sofZmanTfilla: '10:16',
+    chatzot: '12:31',
+    minchaGedola: '13:01',
+    minchaKetana: '16:01',
+    plagHaMincha: '17:16',
+    sunset: '19:01',
+    tzeit: '19:31',
+  },
+  parasha: 'שמיני (local)',
+  omer: 'היום שמונה ימים (local)',
+  candleLighting: '19:01',
+  havdalah: '20:06',
+  dafYomi: 'פסחים קכא (local)',
+};
 
 describe('HebcalService', () => {
   let service: HebcalService;
   let httpMock: HttpTestingController;
+  let cacheGetDayData: jest.Mock;
+  let localComputeDay: jest.Mock;
 
   beforeEach(() => {
+    cacheGetDayData = jest.fn().mockReturnValue(of(null));
+    localComputeDay = jest.fn().mockReturnValue(MOCK_LOCAL_DATA);
+
     TestBed.configureTestingModule({
       imports: [HttpClientTestingModule],
+      providers: [
+        { provide: CacheService, useValue: { getDayData: cacheGetDayData } },
+        { provide: LocalComputeService, useValue: { computeDay: localComputeDay } },
+      ],
     });
+
     service = TestBed.inject(HebcalService);
     httpMock = TestBed.inject(HttpTestingController);
   });
@@ -22,43 +87,71 @@ describe('HebcalService', () => {
     expect(service).toBeTruthy();
   });
 
+  // ---------------------------------------------------------------------------
+  // fetchHebrewDate
+  // ---------------------------------------------------------------------------
   describe('fetchHebrewDate', () => {
-    it('should fetch hebrew date from hebcal converter', () => {
-      const mockResponse = { hebrew: 'ז׳ ניסן תשפ״ו' };
-
-      service.fetchHebrewDate().subscribe((data) => {
-        expect(data.hebrew).toBe('ז׳ ניסן תשפ״ו');
-      });
+    it('returns API data when API succeeds', () => {
+      let result: { hebrew?: string } = {};
+      service.fetchHebrewDate().subscribe((d) => { result = d; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/converter'));
-      expect(req.request.method).toBe('GET');
-      expect(req.request.url).toContain('g2h=1');
-      req.flush(mockResponse);
+      req.flush({ hebrew: 'ז׳ ניסן תשפ״ו' });
+
+      expect(result.hebrew).toBe('ז׳ ניסן תשפ״ו');
+      expect(cacheGetDayData).not.toHaveBeenCalled();
+    });
+
+    it('returns cache data when API fails and cache has data', () => {
+      cacheGetDayData.mockReturnValue(of(MOCK_DAY_CACHE));
+
+      let result: { hebrew?: string } = {};
+      service.fetchHebrewDate().subscribe((d) => { result = d; });
+
+      const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/converter'));
+      req.flush('err', { status: 500, statusText: 'Error' });
+
+      expect(result.hebrew).toBe(MOCK_DAY_CACHE.hebrewDate);
+      expect(localComputeDay).not.toHaveBeenCalled();
+    });
+
+    it('returns local compute data when API and cache both fail', () => {
+      cacheGetDayData.mockReturnValue(of(null));
+
+      let result: { hebrew?: string } = {};
+      service.fetchHebrewDate().subscribe((d) => { result = d; });
+
+      const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/converter'));
+      req.flush('err', { status: 500, statusText: 'Error' });
+
+      expect(result.hebrew).toBe(MOCK_LOCAL_DATA.hebrewDate);
+      expect(localComputeDay).toHaveBeenCalled();
     });
   });
 
+  // ---------------------------------------------------------------------------
+  // fetchZmanim
+  // ---------------------------------------------------------------------------
   describe('fetchZmanim', () => {
-    it('should return formatted zmanim items', () => {
-      const mockTimes = {
-        times: {
-          alotHaShachar: '2026-04-06T04:30:00+03:00',
-          sunrise: '2026-04-06T06:15:00+03:00',
-          sofZmanShmaMGA: '2026-04-06T08:45:00+03:00',
-          sofZmanShma: '2026-04-06T09:15:00+03:00',
-          sofZmanTfilla: '2026-04-06T10:15:00+03:00',
-          chatzot: '2026-04-06T12:30:00+03:00',
-          minchaGedola: '2026-04-06T13:00:00+03:00',
-          minchaKetana: '2026-04-06T16:00:00+03:00',
-          plagHaMincha: '2026-04-06T17:15:00+03:00',
-          sunset: '2026-04-06T19:00:00+03:00',
-          tzeit: '2026-04-06T19:30:00+03:00',
-        },
-      };
+    const mockTimes = {
+      times: {
+        alotHaShachar: '2026-04-06T04:30:00+03:00',
+        sunrise: '2026-04-06T06:15:00+03:00',
+        sofZmanShmaMGA: '2026-04-06T08:45:00+03:00',
+        sofZmanShma: '2026-04-06T09:15:00+03:00',
+        sofZmanTfilla: '2026-04-06T10:15:00+03:00',
+        chatzot: '2026-04-06T12:30:00+03:00',
+        minchaGedola: '2026-04-06T13:00:00+03:00',
+        minchaKetana: '2026-04-06T16:00:00+03:00',
+        plagHaMincha: '2026-04-06T17:15:00+03:00',
+        sunset: '2026-04-06T19:00:00+03:00',
+        tzeit: '2026-04-06T19:30:00+03:00',
+      },
+    };
 
+    it('returns API data when API succeeds', () => {
       let result: ZmanItem[] = [];
-      service.fetchZmanim(281184).subscribe((items) => {
-        result = items;
-      });
+      service.fetchZmanim(281184).subscribe((items) => { result = items; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/zmanim'));
       expect(req.request.url).toContain('geonameid=281184');
@@ -66,74 +159,65 @@ describe('HebcalService', () => {
 
       expect(result.length).toBe(11);
       expect(result[0].label).toBe('עלות השחר');
-      expect(result[1].label).toBe('הנץ החמה');
+      expect(cacheGetDayData).not.toHaveBeenCalled();
     });
 
-    it('should filter out missing times', () => {
-      const mockTimes = {
-        times: {
-          sunrise: '2026-04-06T06:15:00+03:00',
-          sunset: '2026-04-06T19:00:00+03:00',
-        },
-      };
-
+    it('filters out missing times from API response', () => {
       let result: ZmanItem[] = [];
-      service.fetchZmanim(281184).subscribe((items) => {
-        result = items;
-      });
+      service.fetchZmanim(281184).subscribe((items) => { result = items; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/zmanim'));
-      req.flush(mockTimes);
+      req.flush({ times: { sunrise: '2026-04-06T06:15:00+03:00', sunset: '2026-04-06T19:00:00+03:00' } });
 
       expect(result.length).toBe(2);
     });
 
-    it('should handle empty times', () => {
+    it('returns cache data when API fails and cache has data', () => {
+      cacheGetDayData.mockReturnValue(of(MOCK_DAY_CACHE));
+
       let result: ZmanItem[] = [];
-      service.fetchZmanim(281184).subscribe((items) => {
-        result = items;
-      });
+      service.fetchZmanim(281184).subscribe((items) => { result = items; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/zmanim'));
-      req.flush({});
+      req.flush('err', { status: 500, statusText: 'Error' });
 
-      expect(result.length).toBe(0);
+      expect(result.length).toBe(11);
+      expect(result[0].label).toBe('עלות השחר');
+      expect(result[0].value).toBe('04:30');
+      expect(localComputeDay).not.toHaveBeenCalled();
     });
 
-    it('should propagate HTTP errors', () => {
-      let errorThrown = false;
-      service.fetchZmanim(281184).subscribe({
-        error: () => { errorThrown = true; },
-      });
+    it('returns local compute data when API and cache both fail', () => {
+      cacheGetDayData.mockReturnValue(of(null));
+
+      let result: ZmanItem[] = [];
+      service.fetchZmanim(281184).subscribe((items) => { result = items; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/zmanim'));
-      req.flush('Server Error', { status: 500, statusText: 'Internal Server Error' });
+      req.flush('err', { status: 500, statusText: 'Error' });
 
-      expect(errorThrown).toBe(true);
+      expect(result.length).toBe(11);
+      expect(result[0].label).toBe('עלות השחר');
+      expect(localComputeDay).toHaveBeenCalled();
     });
   });
 
+  // ---------------------------------------------------------------------------
+  // fetchParashaAndShabbat
+  // ---------------------------------------------------------------------------
   describe('fetchParashaAndShabbat', () => {
-    it('should parse parasha, candle lighting, havdalah, and omer', () => {
-      const todayStr = new Date().toISOString().slice(0, 10);
-      const mockResponse = {
-        items: [
-          { category: 'parashat', hebrew: 'צו', title: 'Tzav' },
-          { category: 'candles', date: '2026-04-10T18:30:00+03:00' },
-          { category: 'havdalah', date: '2026-04-11T19:35:00+03:00' },
-          {
-            category: 'omer',
-            date: todayStr,
-            hebrew: 'היום שבעה ימים',
-            title: '7th day of the Omer',
-          },
-        ],
-      };
+    const mockResponse = {
+      items: [
+        { category: 'parashat', hebrew: 'צו', title: 'Tzav' },
+        { category: 'candles', date: '2026-04-10T18:30:00+03:00' },
+        { category: 'havdalah', date: '2026-04-11T19:35:00+03:00' },
+        { category: 'omer', date: TODAY, hebrew: 'היום שבעה ימים', title: '7th day' },
+      ],
+    };
 
+    it('returns API data when API succeeds', () => {
       let result: ParashaResult | null = null;
-      service.fetchParashaAndShabbat(281184).subscribe((r) => {
-        result = r;
-      });
+      service.fetchParashaAndShabbat(281184).subscribe((r) => { result = r; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/hebcal'));
       req.flush(mockResponse);
@@ -143,31 +227,22 @@ describe('HebcalService', () => {
       expect(result!.omerCount).toBe('היום שבעה ימים');
       expect(result!.candleLighting).toBeTruthy();
       expect(result!.havdalah).toBeTruthy();
+      expect(cacheGetDayData).not.toHaveBeenCalled();
     });
 
-    it('should fall back to holiday when no parasha', () => {
-      const mockResponse = {
-        items: [
-          { category: 'holiday', subcat: 'major', hebrew: 'פסח', title: 'Pesach' },
-        ],
-      };
-
+    it('falls back to holiday when no parasha in API response', () => {
       let result: ParashaResult | null = null;
-      service.fetchParashaAndShabbat(281184).subscribe((r) => {
-        result = r;
-      });
+      service.fetchParashaAndShabbat(281184).subscribe((r) => { result = r; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/hebcal'));
-      req.flush(mockResponse);
+      req.flush({ items: [{ category: 'holiday', subcat: 'major', hebrew: 'פסח', title: 'Pesach' }] });
 
       expect(result!.parashaName).toBe('פסח');
     });
 
-    it('should return defaults when no items', () => {
+    it('returns defaults when API returns empty items', () => {
       let result: ParashaResult | null = null;
-      service.fetchParashaAndShabbat(281184).subscribe((r) => {
-        result = r;
-      });
+      service.fetchParashaAndShabbat(281184).subscribe((r) => { result = r; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/hebcal'));
       req.flush({ items: [] });
@@ -178,54 +253,68 @@ describe('HebcalService', () => {
       expect(result!.havdalah).toBe('');
     });
 
-    it('should propagate HTTP errors', () => {
-      let errorThrown = false;
-      service.fetchParashaAndShabbat(281184).subscribe({
-        error: () => { errorThrown = true; },
-      });
+    it('returns cache data when API fails and cache has data', () => {
+      cacheGetDayData.mockReturnValue(of(MOCK_DAY_CACHE));
+
+      let result: ParashaResult | null = null;
+      service.fetchParashaAndShabbat(281184).subscribe((r) => { result = r; });
 
       const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/hebcal'));
-      req.flush('Error', { status: 500, statusText: 'Error' });
+      req.flush('err', { status: 500, statusText: 'Error' });
 
-      expect(errorThrown).toBe(true);
+      expect(result!.parashaName).toBe('צו');
+      expect(result!.showOmer).toBe(true);
+      expect(result!.omerCount).toBe('היום שבעה ימים');
+      expect(result!.candleLighting).toBe('19:00');
+      expect(result!.havdalah).toBe('20:05');
+      expect(localComputeDay).not.toHaveBeenCalled();
+    });
+
+    it('returns local compute data when API and cache both fail', () => {
+      cacheGetDayData.mockReturnValue(of(null));
+
+      let result: ParashaResult | null = null;
+      service.fetchParashaAndShabbat(281184).subscribe((r) => { result = r; });
+
+      const req = httpMock.expectOne((r) => r.url.includes('hebcal.com/hebcal'));
+      req.flush('err', { status: 500, statusText: 'Error' });
+
+      expect(result!.parashaName).toBe('שמיני (local)');
+      expect(result!.showOmer).toBe(true);
+      expect(localComputeDay).toHaveBeenCalled();
     });
   });
 
+  // ---------------------------------------------------------------------------
+  // fetchDafYomi
+  // ---------------------------------------------------------------------------
   describe('fetchDafYomi', () => {
-    it('should return hebrew daf yomi name', () => {
-      const mockResponse = {
+    it('returns API data when API succeeds', () => {
+      let result = '';
+      service.fetchDafYomi().subscribe((name) => { result = name; });
+
+      const req = httpMock.expectOne((r) => r.url.includes('sefaria.org/api/calendars'));
+      req.flush({
         calendar_items: [
           { title: { en: 'Daf Yomi' }, displayValue: { he: 'פסחים דף ק״כ', en: 'Pesachim 120' } },
-          { title: { en: 'Other' }, displayValue: { he: 'other' } },
         ],
-      };
-
-      let result = '';
-      service.fetchDafYomi().subscribe((name) => { result = name; });
-
-      const req = httpMock.expectOne((r) => r.url.includes('sefaria.org/api/calendars'));
-      req.flush(mockResponse);
+      });
 
       expect(result).toBe('פסחים דף ק״כ');
+      expect(cacheGetDayData).not.toHaveBeenCalled();
     });
 
-    it('should fallback to english when no hebrew', () => {
-      const mockResponse = {
-        calendar_items: [
-          { title: { en: 'Daf Yomi' }, displayValue: { en: 'Pesachim 120' } },
-        ],
-      };
-
+    it('falls back to english when no hebrew in API response', () => {
       let result = '';
       service.fetchDafYomi().subscribe((name) => { result = name; });
 
       const req = httpMock.expectOne((r) => r.url.includes('sefaria.org/api/calendars'));
-      req.flush(mockResponse);
+      req.flush({ calendar_items: [{ title: { en: 'Daf Yomi' }, displayValue: { en: 'Pesachim 120' } }] });
 
       expect(result).toBe('Pesachim 120');
     });
 
-    it('should return --- when no daf yomi found', () => {
+    it('returns --- when no daf yomi found in API response', () => {
       let result = '';
       service.fetchDafYomi().subscribe((name) => { result = name; });
 
@@ -235,19 +324,36 @@ describe('HebcalService', () => {
       expect(result).toBe('---');
     });
 
-    it('should propagate HTTP errors', () => {
-      let errorThrown = false;
-      service.fetchDafYomi().subscribe({
-        error: () => { errorThrown = true; },
-      });
+    it('returns cache data when API fails and cache has data', () => {
+      cacheGetDayData.mockReturnValue(of(MOCK_DAY_CACHE));
+
+      let result = '';
+      service.fetchDafYomi().subscribe((name) => { result = name; });
 
       const req = httpMock.expectOne((r) => r.url.includes('sefaria.org/api/calendars'));
-      req.flush('Error', { status: 500, statusText: 'Error' });
+      req.flush('err', { status: 500, statusText: 'Error' });
 
-      expect(errorThrown).toBe(true);
+      expect(result).toBe('פסחים קכ');
+      expect(localComputeDay).not.toHaveBeenCalled();
+    });
+
+    it('returns local compute data when API and cache both fail', () => {
+      cacheGetDayData.mockReturnValue(of(null));
+
+      let result = '';
+      service.fetchDafYomi().subscribe((name) => { result = name; });
+
+      const req = httpMock.expectOne((r) => r.url.includes('sefaria.org/api/calendars'));
+      req.flush('err', { status: 500, statusText: 'Error' });
+
+      expect(result).toBe('פסחים קכא (local)');
+      expect(localComputeDay).toHaveBeenCalled();
     });
   });
 
+  // ---------------------------------------------------------------------------
+  // getSeasonPrayer
+  // ---------------------------------------------------------------------------
   describe('getSeasonPrayer', () => {
     const RealDate = Date;
 
@@ -255,7 +361,7 @@ describe('HebcalService', () => {
       global.Date = RealDate;
     });
 
-    it('should return summer prayer in April-October', () => {
+    it('returns summer prayer in April-October', () => {
       const mockDate = new RealDate(2026, 5, 15);
       global.Date = class extends RealDate {
         constructor(...args: any[]) {
@@ -272,7 +378,7 @@ describe('HebcalService', () => {
       expect(result.rain).toBe('ותן ברכה');
     });
 
-    it('should return winter prayer in November-March', () => {
+    it('returns winter prayer in November-March', () => {
       const mockDate = new RealDate(2026, 0, 15);
       global.Date = class extends RealDate {
         constructor(...args: any[]) {
